@@ -71,9 +71,11 @@ class Chat extends Entity {
   Future<ChatMember> getChatMember(int user_id) => _bot.request<ChatMember>(
       'getChatMember', {'chat_id': id, 'user_id': user_id});
 
-  Future<List<ChatMember>> getAdministrators() => _bot.requestMany<ChatMember>('getChatAdministrators', {'chat_id': id});
+  Future<List<ChatMember>> getAdministrators() =>
+      _bot.requestMany<ChatMember>('getChatAdministrators', {'chat_id': id});
 
-  Future<int> getMembersCount() => _bot.request<int>('getChatMembersCount', {'chat_id': id});
+  Future<int> getMembersCount() =>
+      _bot.request<int>('getChatMembersCount', {'chat_id': id});
 
   Future<void> setTitle(String title) async {
     await _bot.request('setChatTitle', {'chat_id': id, 'title': title});
@@ -81,7 +83,13 @@ class Chat extends Entity {
   }
 
   Future<void> setDescription(String description) async {
-    await _bot.request('setChatDescription', {'chat_id': id, 'description': description});
+    await _bot.request(
+        'setChatDescription', {'chat_id': id, 'description': description});
     raw['description'] = description;
+  }
+
+  Future<void> setPermissions(ChatPermissions permissions) async {
+    await _bot.request('setChatPermissions',
+        {'chat_id': id, 'permissions': permissions.serialized});
   }
 }
