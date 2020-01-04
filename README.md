@@ -6,7 +6,7 @@ It is async-oriented, meaning every update is handled independently of the other
 
 It is designed to follow a set of rules defined by the user that are examined for every update. A simple syntax allows the user to specify various filters that each have to match a given message for its corresponding rule to be executed.
 
-The entities laid out are designed to closely follow the [types](https://core.telegram.org/bots/api#available-types) as specified by the Telegram docs. Several methods are then added to render the code more fluent and intuitive to write (for example a message can be reply with .reply(test) or deleted with .delete(), a user can be kicked with .kick(), etc.)
+The entities laid out are designed to closely follow the [types](https://core.telegram.org/bots/api#available-types) as specified by the Telegram docs. Several methods are then added to render the code more fluent and intuitive to write (for example a message can be reply with .reply(text) or deleted with .delete(), a user can be kicked with .kick(), etc.)
 
 ## Usage
 

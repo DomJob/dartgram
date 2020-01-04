@@ -18,7 +18,7 @@ class Bot {
   Bot(this._token);
 
   Future<dynamic> _request(String method, [Map<String, dynamic> params]) async {
-    if(!_active) {
+    if (!_active) {
       _client = HttpClient();
     }
 
@@ -37,7 +37,7 @@ class Bot {
       ;
     }
 
-    if(!_active) {
+    if (!_active) {
       _client.close();
     }
 
@@ -48,27 +48,31 @@ class Bot {
       var prettyData = encoder.convert(params);
       var prettyResult = encoder.convert(decoded);
 
-      throw ApiException('Method: ${method}\n\nData: ${prettyData}\n\nResult: ${prettyResult}', decoded);
+      throw ApiException(
+          'Method: ${method}\n\nData: ${prettyData}\n\nResult: ${prettyResult}',
+          decoded);
     }
 
     return decoded['result'];
   }
 
-  Future<T> request<T extends Entity>(String method, [Map<String, dynamic> params]) async {
+  Future<T> request<T extends Entity>(String method,
+      [Map<String, dynamic> params]) async {
     var data = await _request(method, params);
-    
+
     return Entity.generate<T>(this, data);
   }
 
-  Future<List<T>> requestList<T extends Entity>(String method, [Map<String, dynamic> params]) async {
+  Future<List<T>> requestList<T extends Entity>(String method,
+      [Map<String, dynamic> params]) async {
     List<dynamic> data = await _request(method, params);
-    
+
     return data.map((e) => Entity.generate<T>(this, e)).toList();
   }
 
   Future<void> handle(Update update) async {
     for (var rule in _rules) {
-      if(rule.match(update)) {
+      if (rule.match(update)) {
         try {
           await rule.run(update);
         } catch (e, t) {
@@ -82,12 +86,13 @@ class Bot {
     _active = true;
     _client = HttpClient();
 
-    while(_active) {
-      var updates = await requestList<Update>('getUpdates', {'offset': _lastUpdate+1});
+    while (_active) {
+      var updates =
+          await requestList<Update>('getUpdates', {'offset': _lastUpdate + 1});
 
-      if(updates.isNotEmpty) {
+      if (updates.isNotEmpty) {
         _lastUpdate = updates.last.id;
-        for(var update in updates) {
+        for (var update in updates) {
           unawaited(handle(update));
         }
       }
@@ -99,21 +104,24 @@ class Bot {
     _active = false;
   }
 
+  _RepeatedAction every(int seconds, Future Function() action) =>
+      _RepeatedAction(Duration(seconds: seconds), action);
+
   _MessageRuleBuilder get onMessage => _MessageRuleBuilder(this)
-                                      .._filters.add((u) => u.type == UpdateType.message);
+    .._filters.add((u) => u.type == UpdateType.message);
 
   _MessageRuleBuilder get onEditedMessage => _MessageRuleBuilder(this)
-                                            .._filters.add((u) => u.type == UpdateType.edited);
-  
+    .._filters.add((u) => u.type == UpdateType.edited);
+
   _MessageRuleBuilder get onChannelPost => _MessageRuleBuilder(this)
-                                            .._filters.add((u) => u.type == UpdateType.channel);
+    .._filters.add((u) => u.type == UpdateType.channel);
 
   _MessageRuleBuilder get onEditedChannelPost => _MessageRuleBuilder(this)
-                                                .._filters.add((u) => u.type == UpdateType.edited_channel);
+    .._filters.add((u) => u.type == UpdateType.edited_channel);
 
   _MessageRuleBuilder onCommand(String cmd) => _MessageRuleBuilder(this)
-                                              ..when((m) => m.command?.toLowerCase() == cmd.toLowerCase());
-  
+    ..when((m) => m.command?.toLowerCase() == cmd.toLowerCase());
+
   _CallbackRuleBuilder get onCallbackQuery => _CallbackRuleBuilder(this);
 }
 
@@ -126,4 +134,29 @@ class ApiException implements Exception {
   String toString() => message;
 }
 
-void unawaited(Future<void> future) {}
+class _RepeatedAction {
+  final Duration _duration;
+  final Future Function() _action;
+  bool active = true;
+
+  _RepeatedAction(this._duration, this._action) {
+    start();
+  }
+
+  void stop() => active = false;
+
+  void start() {
+    active = true;
+    unawaited(_loop());
+  }
+
+  Future<void> _loop() async {
+    while (active) {
+      await Future.delayed(_duration, () async {
+        if (active) await _action();
+      });
+    }
+  }
+}
+
+void unawaited(Future future) {}

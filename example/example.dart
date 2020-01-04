@@ -1,13 +1,13 @@
 import 'package:dartgram/dartgram.dart';
 
 void main(List<String> args) async {
-  var bot = Bot(args[0]);
-  
+  var bot = Bot('12345:token');
+
   // Standalone request (executes immediately)
   // In this example the response (if successful) is casted into a Message object
 
   var message = await bot.request<Message>('sendMessage', {
-    'chat_id': 178578488,
+    'chat_id': 12345678,
     'text': 'hi'
   });
 

@@ -13,6 +13,8 @@ class Entity {
   Entity(this.raw);
   
   static T generate<T extends Entity>(Bot bot, Map<String, dynamic> raw) {
+    if(T == null) return null;
+    
     final factories = <Type, Function>{
       Chat: (b,r) => Chat(b,r),
       User: (b,r) => User(b,r),
