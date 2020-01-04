@@ -88,8 +88,16 @@ class Chat extends Entity {
     raw['description'] = description;
   }
 
-  Future<void> setPermissions(ChatPermissions permissions) async {
-    await _bot.request('setChatPermissions',
-        {'chat_id': id, 'permissions': permissions.serialized});
-  }
+  Future<void> setPermissions(ChatPermissions permissions) => _bot.request(
+      'setChatPermissions',
+      {'chat_id': id, 'permissions': permissions.serialized});
+
+  Future<void> setStickerSet(String set_name) => _bot.request(
+      'setChatStickerSet', {'chat_id': id, 'sticker_set_name': set_name});
+
+  Future<void> deleteSticketSet() =>
+      _bot.request('deleteChatStickerSet', {'chat_id': id});
+
+  Future<String> getInviteLink() =>
+      _bot.request<String>('exportChatInviteLink', {'chat_id': id});
 }

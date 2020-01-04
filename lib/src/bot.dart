@@ -82,6 +82,8 @@ class Bot {
   }
 
   Future<void> start() async {
+    if(_active) return;
+
     _active = true;
     _client = HttpClient();
 
@@ -102,6 +104,10 @@ class Bot {
     _client.close();
     _active = false;
   }
+
+  Future<User> getMe() => request<User>('getMe');
+
+  Future<Chat> getChat(int chat_id) => request<Chat>('getChat', {'chat_id': chat_id});
 
   _RepeatedAction every(int seconds, Future Function() action) =>
       _RepeatedAction(Duration(seconds: seconds), action);
