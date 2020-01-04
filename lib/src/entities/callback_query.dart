@@ -1,7 +1,7 @@
 part of '../entity.dart';
 
 class CallbackQuery extends Entity {
-  int id;
+  String id;
   User from;
   Message message;
   String data;
@@ -15,15 +15,17 @@ class CallbackQuery extends Entity {
     data = raw['data'];
   }
 
-  Future<void> answer({String text,
-          bool show_alert = false,
-          String url,
-          int cache_time = 0}) =>
-      _bot.request('answerCallbackQuery', {
-        'callback_query_id': id,
-        'text': text,
-        'show_alert': show_alert,
-        'url': url,
-        'cache_time': cache_time
-      });
+  Future<void> answer(
+      {String text,
+      bool show_alert = false,
+      String url,
+      int cache_time = 0}) async {
+
+    var data = {'callback_query_id': id, 'cache_time': cache_time, 'show_alert': show_alert};
+
+    if(text != null) data['text'] = text;
+    if(url != null) data['url'] = url;
+
+    await _bot.request('answerCallbackQuery', data);
+  }
 }

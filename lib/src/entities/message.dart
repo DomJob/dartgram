@@ -61,13 +61,14 @@ class Message extends Entity {
     ].any((String k) => data.containsKey(k));
   }
 
-  Future<Message> reply(String text, {String parse_mode, bool disable_notification=false}) {
+  Future<Message> reply(String text, {String parse_mode, bool disable_notification=false, Keyboard reply_markup}) {
     return _bot.request<Message>('sendMessage', {
       'chat_id': chat.id,
       'reply_to_message_id': id,
       'text': text,
       'parse_mode': parse_mode ?? _bot.parseMode,
-      'disable_notification': disable_notification
+      'disable_notification': disable_notification,
+      'reply_markup': reply_markup?.serialized
     });
   }
 

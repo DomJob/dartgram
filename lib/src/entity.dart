@@ -11,6 +11,7 @@ part 'entities/callback_query.dart';
 part 'entities/chat_photo.dart';
 part 'entities/chat_permissions.dart';
 part 'entities/chat_member.dart';
+part 'entities/keyboard.dart';
 
 class Entity {
   Map<String, dynamic> raw;
