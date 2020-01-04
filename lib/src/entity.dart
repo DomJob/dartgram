@@ -22,7 +22,7 @@ class Entity {
     return '[${runtimeType}] ' + JsonEncoder.withIndent(' ').convert(raw);
   }
 
-  String serialize() => json.encode(raw);
+  String get serialized => json.encode(raw);
 
   static T generate<T>(Bot bot, dynamic data) {
     final factories = <Type, Function>{
@@ -33,7 +33,7 @@ class Entity {
       Sticker: (b, r) => Sticker(r),
       CallbackQuery: (b, r) => CallbackQuery(b, r),
       ChatPhoto: (b, r) => ChatPhoto(b, r),
-      ChatPermissions: (b, r) => ChatPermissions(r),
+      ChatPermissions: (b, r) => ChatPermissions._load(r),
       ChatMember: (b, r) => ChatMember(b, r)
     };
 

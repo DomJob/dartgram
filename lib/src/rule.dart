@@ -18,8 +18,8 @@ class _MessageRuleBuilder {
   final Bot _bot;
   final List<Filter> _filters = [];
 
-  _MessageRuleBuilder(this._bot) {
-    _filters.add((u) => u.type == UpdateType.message);
+  _MessageRuleBuilder(this._bot, UpdateType type) {
+    _filters.add((u) => u.type == type);
   }
 
   _MessageRuleBuilder when(bool Function(Message) filter) {
@@ -40,7 +40,9 @@ class _CallbackRuleBuilder {
   final Bot _bot;
   final List<Filter> _filters = [];
 
-  _CallbackRuleBuilder(this._bot);
+  _CallbackRuleBuilder(this._bot) {
+    _filters.add((u) => u.type == UpdateType.callback);
+  }
 
   _CallbackRuleBuilder when(bool Function(CallbackQuery) filter) {
     _filters.add((u) => filter(u.callback_query));

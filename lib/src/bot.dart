@@ -106,22 +106,19 @@ class Bot {
   _RepeatedAction every(int seconds, Future Function() action) =>
       _RepeatedAction(Duration(seconds: seconds), action);
 
-  _MessageRuleBuilder get onMessage => _MessageRuleBuilder(this)
-    .._filters.add((u) => u.type == UpdateType.message);
+  _MessageRuleBuilder get onMessage => _MessageRuleBuilder(this, UpdateType.message);
 
-  _MessageRuleBuilder get onEditedMessage => _MessageRuleBuilder(this)
-    .._filters.add((u) => u.type == UpdateType.edited);
+  _MessageRuleBuilder get onEditedMessage => _MessageRuleBuilder(this, UpdateType.edited);
 
-  _MessageRuleBuilder get onChannelPost => _MessageRuleBuilder(this)
-    .._filters.add((u) => u.type == UpdateType.channel);
+  _MessageRuleBuilder get onChannelPost => _MessageRuleBuilder(this, UpdateType.channel);
 
-  _MessageRuleBuilder get onEditedChannelPost => _MessageRuleBuilder(this)
-    .._filters.add((u) => u.type == UpdateType.edited_channel);
-
-  _MessageRuleBuilder onCommand(String cmd) => _MessageRuleBuilder(this)
-    ..when((m) => m.command?.toLowerCase() == cmd.toLowerCase());
+  _MessageRuleBuilder get onEditedChannelPost => _MessageRuleBuilder(this, UpdateType.edited_channel);
 
   _CallbackRuleBuilder get onCallbackQuery => _CallbackRuleBuilder(this);
+
+  _MessageRuleBuilder onCommand(String cmd) => _MessageRuleBuilder(this, UpdateType.message)
+    ..when((m) => m.command?.toLowerCase() == cmd.toLowerCase())
+    ..and((m) => !m.is_forward);
 }
 
 class ApiException implements Exception {

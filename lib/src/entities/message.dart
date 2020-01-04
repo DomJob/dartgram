@@ -12,6 +12,8 @@ class Message extends Entity {
   Sticker sticker;
   List<User> new_chat_members;
   User left_chat_member;
+
+  bool is_forward;
   bool is_special;
 
   String get command => args != null ? args[0] : null;
@@ -30,10 +32,12 @@ class Message extends Entity {
 
   Message(this._bot, Map<String, dynamic> data) : super(data) {
     id = data['message_id'];
-    from = Entity.generate<User>(_bot, data['user']);
+    from = Entity.generate<User>(_bot, data['from']);
     date = data['date'];
     chat = Entity.generate<Chat>(_bot, data['chat']);
     text = data['text'] ?? '';
+
+    if(from != null) from._chat = chat;
 
     forward_from = Entity.generate<User>(_bot, data['forward_from']);
     forward_sender_name = data['forward_sender_name'];
@@ -45,6 +49,8 @@ class Message extends Entity {
     new_chat_members = Entity.generateMany<User>(_bot, data['new_chat_members']);;
     left_chat_member = Entity.generate<User>(_bot, data['left_chat_member']);
     
+    is_forward = forward_from != null || forward_sender_name != null;
+
     is_special = [
       'new_chat_members',
       'left_chat_member',
