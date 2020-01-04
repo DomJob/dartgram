@@ -11,9 +11,10 @@ class Update extends Entity {
   Update(Bot bot, Map<String, dynamic> data) : super(data) {
     id = data['update_id'];
 
-    if (data.containsKey('callback_query')) {
+    callback_query = Entity.generate<CallbackQuery>(bot, data['callback_query']);
+
+    if (callback_query != null) {
       type = UpdateType.callback;
-      callback_query = CallbackQuery(bot, data['callback_query']);
       return;
     }
 
@@ -32,6 +33,6 @@ class Update extends Entity {
       key = 'edited_channel_post';
     }
 
-    message = Message(bot, data[key]);
+    message = Entity.generate<Message>(bot, data[key]);
   }
 }

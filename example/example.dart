@@ -8,8 +8,11 @@ void main(List<String> args) async {
 
   var message = await bot.request<Message>('sendMessage', {
     'chat_id': 12345678,
-    'text': 'hi'
+    'text': 'hello world'
   });
+
+  // The returned object contains all the goody functions:
+  await message.edit('Hello, world!');
 
   // Setting up rules (executes when the polling loop starts)
 

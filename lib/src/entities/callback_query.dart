@@ -8,8 +8,8 @@ class CallbackQuery extends Entity {
 
   CallbackQuery(Bot bot, Map<String, dynamic> raw) : super(raw) {
     id = raw['id'];
-    from = User(bot, raw['from']);
-    message = raw.containsKey('message') ? Message(bot, raw['message']) : null;
+    from = Entity.generate<User>(bot, raw['from']);
+    message = Entity.generate<Message>(bot, raw['message']);
     data = raw['data'];
   }
 }

@@ -30,33 +30,21 @@ class Message extends Entity {
 
   Message(this._bot, Map<String, dynamic> data) : super(data) {
     id = data['message_id'];
-    from = data.containsKey('from') ? User(_bot, data['from']) : null;
+    from = Entity.generate<User>(_bot, data['user']);
     date = data['date'];
-    chat = Chat(_bot, data['chat']);
+    chat = Entity.generate<Chat>(_bot, data['chat']);
     text = data['text'] ?? '';
 
-    forward_from = data.containsKey('forward_from')
-        ? User(_bot, data['forward_from'])
-        : null;
+    forward_from = Entity.generate<User>(_bot, data['forward_from']);
     forward_sender_name = data['forward_sender_name'];
 
-    reply_to_message = data.containsKey('reply_to_message')
-        ? Message(_bot, data['reply_to_message'])
-        : null;
+    reply_to_message = Entity.generate<Message>(_bot, data['reply_to_message']);
 
-    sticker =
-        data.containsKey('sticker') ? Sticker(data['sticker']) : null;
+    sticker = Entity.generate<Sticker>(_bot, data['sticker']);
 
-    if (data.containsKey('new_chat_members')) {
-      List<dynamic> new_members = data['new_chat_members'];
-      new_chat_members =
-          new_members.map((dynamic userdata) => User(_bot, userdata)).toList();
-    }
-
-    left_chat_member = data.containsKey('left_chat_member')
-        ? User(_bot, data['left_chat_member'])
-        : null;
-
+    new_chat_members = Entity.generateMany<User>(_bot, data['new_chat_members']);;
+    left_chat_member = Entity.generate<User>(_bot, data['left_chat_member']);
+    
     is_special = [
       'new_chat_members',
       'left_chat_member',
@@ -67,15 +55,41 @@ class Message extends Entity {
     ].any((String k) => data.containsKey(k));
   }
 
-  Future<Message> reply(String text, {String parse_mode, bool disable_notification=false}) async {
-    var data = await _bot.request<Message>('sendMessage', {
+  Future<Message> reply(String text, {String parse_mode, bool disable_notification=false}) {
+    return _bot.request<Message>('sendMessage', {
       'chat_id': chat.id,
       'reply_to_message_id': id,
       'text': text,
       'parse_mode': parse_mode ?? _bot.parseMode,
       'disable_notification': disable_notification
     });
-
-    return data;
   }
+
+  Future<Message> forward(dynamic chat_id, {bool disable_notification=false}) {
+    return _bot.request<Message>('forwardMessage', {
+      'chat_id': chat_id,
+      'from_chat_id': chat.id,
+      'message_id': id,
+      'disable_notification': disable_notification
+    });
+  }
+
+  Future<Message> edit(String text, {String parse_mode, bool disable_notification=false}) {
+    return _bot.request<Message>('editMessageText', {
+      'chat_id': chat.id,
+      'message_id': id,
+      'text': text,
+      'parse_mode': parse_mode ?? _bot.parseMode,
+      'disable_notification': disable_notification
+    });
+  }
+
+  Future<void> delete() async {
+    await _bot.request('deleteMessage', {
+      'chat_id': chat.id,
+      'message_id': id
+    });
+  }
+
+  Future<void> pin({bool disable_notification = true}) => chat.pin(id, disable_notification: disable_notification);
 }
