@@ -13,14 +13,9 @@ class Bot {
   final List<_Rule> _rules = [];
   bool _active = false;
 
-  String parse_mode = 'HTML';
+  String parseMode = 'HTML';
 
   Bot(this._token);
-
-  void close() {
-    _client.close();
-    _active = false;
-  }
 
   Future<dynamic> _request(String method, [Map<String, dynamic> params]) async {
     if(!_active) {
@@ -65,6 +60,12 @@ class Bot {
     return Entity.generate<T>(this, data);
   }
 
+  Future<List<T>> requestList<T extends Entity>(String method, [Map<String, dynamic> params]) async {
+    List<dynamic> data = await _request(method, params);
+    
+    return data.map((e) => Entity.generate<T>(this, e)).toList();
+  }
+
   Future<void> handle(Update update) async {
     for (var rule in _rules) {
       if(rule.match(update)) {
@@ -82,12 +83,20 @@ class Bot {
     _client = HttpClient();
 
     while(_active) {
-      var updates = await getUpdates();
-      
-      for(var update in updates) {
-        unawaited(handle(update));
+      var updates = await requestList<Update>('getUpdates', {'offset': _lastUpdate+1});
+
+      if(updates.isNotEmpty) {
+        _lastUpdate = updates.last.id;
+        for(var update in updates) {
+          unawaited(handle(update));
+        }
       }
     }
+  }
+
+  void close() {
+    _client.close();
+    _active = false;
   }
 
   _MessageRuleBuilder get onMessage => _MessageRuleBuilder(this)
@@ -106,18 +115,6 @@ class Bot {
                                               ..when((m) => m.command?.toLowerCase() == cmd.toLowerCase());
   
   _CallbackRuleBuilder get onCallbackQuery => _CallbackRuleBuilder(this);
-
-  // API Endpoints
-
-  Future<List<Update>> getUpdates() async {
-    List<dynamic> rawUpdates = await request('getUpdates', {'offset': _lastUpdate + 1});
-
-    var list = rawUpdates.map((dynamic u) => Update(this, u)).toList();
-    if (list.isEmpty) return [];
-
-    _lastUpdate = list.last.id;
-    return list;
-  }
 }
 
 class ApiException implements Exception {

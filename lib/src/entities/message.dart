@@ -68,13 +68,11 @@ class Message extends Entity {
   }
 
   Future<Message> reply(String text, {String parse_mode, bool disable_notification=false}) async {
-    print(text);
-
-    var data = await _bot.request('sendMessage', {
+    var data = await _bot.request<Message>('sendMessage', {
       'chat_id': chat.id,
       'reply_to_message_id': id,
       'text': text,
-      'parse_mode': parse_mode ?? _bot.parse_mode,
+      'parse_mode': parse_mode ?? _bot.parseMode,
       'disable_notification': disable_notification
     });
 
