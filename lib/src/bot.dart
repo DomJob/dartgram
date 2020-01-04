@@ -56,18 +56,17 @@ class Bot {
     return decoded['result'];
   }
 
-  Future<T> request<T extends Entity>(String method,
+  Future<T> request<T>(String method,
       [Map<String, dynamic> params]) async {
     var data = await _request(method, params);
 
     return Entity.generate<T>(this, data);
   }
 
-  Future<List<T>> requestList<T extends Entity>(String method,
-      [Map<String, dynamic> params]) async {
-    List<dynamic> data = await _request(method, params);
+  Future<List<T>> requestMany<T>(String method, [Map<String, dynamic> params]) async {
+    var data = await _request(method, params);
 
-    return data.map((e) => Entity.generate<T>(this, e)).toList();
+    return Entity.generateMany<T>(this, data);
   }
 
   Future<void> handle(Update update) async {
@@ -88,7 +87,7 @@ class Bot {
 
     while (_active) {
       var updates =
-          await requestList<Update>('getUpdates', {'offset': _lastUpdate + 1});
+          await requestMany<Update>('getUpdates', {'offset': _lastUpdate + 1});
 
       if (updates.isNotEmpty) {
         _lastUpdate = updates.last.id;

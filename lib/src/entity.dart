@@ -10,6 +10,7 @@ part 'entities/update.dart';
 part 'entities/callback_query.dart';
 part 'entities/chat_photo.dart';
 part 'entities/chat_permissions.dart';
+part 'entities/chat_member.dart';
 
 class Entity {
   Map<String, dynamic> raw;
@@ -23,9 +24,7 @@ class Entity {
 
   String serialize() => json.encode(raw);
 
-  static T generate<T extends Entity>(Bot bot, dynamic data) {
-    if(data == null) return null;
-
+  static T generate<T>(Bot bot, dynamic data) {
     final factories = <Type, Function>{
       Chat: (b, r) => Chat(b, r),
       User: (b, r) => User(b, r),
@@ -34,15 +33,17 @@ class Entity {
       Sticker: (b, r) => Sticker(r),
       CallbackQuery: (b, r) => CallbackQuery(b, r),
       ChatPhoto: (b, r) => ChatPhoto(b, r),
-      ChatPermissions: (b, r) => ChatPermissions(r)
+      ChatPermissions: (b, r) => ChatPermissions(r),
+      ChatMember: (b, r) => ChatMember(b, r)
     };
 
-    if (!factories.containsKey(T)) return null;
+    if(data == null) return null;
+    if (!factories.containsKey(T)) return data;
 
     return factories[T](bot, data);
   }
 
-  static List<T> generateMany<T extends Entity>(Bot bot, List data) {
+  static List<T> generateMany<T>(Bot bot, List data) {
     if(data == null) return null;
 
     return data.map((d) => generate<T>(bot, d)).toList();
