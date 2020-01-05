@@ -30,7 +30,7 @@ void main(List<String> args) async {
   .when(isReply)
   .and(isAdmin)
   .then((m) async {
-    await m.reply(m.reply_to_message.raw.toString());
+    await m.reply(m.reply_to_message.toString());
   });
 
   // Handle messages that aren't commands

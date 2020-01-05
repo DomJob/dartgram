@@ -1,40 +1,32 @@
 part of '../entity.dart';
 
 class Chat extends Entity {
-  int id;
-  String type;
+  int get id => get('id');
+  String get type => get('type');
   User user;
-
-  String title;
-  String description;
+  
+  String get title => get('title');
+  String get description => get('description');
   ChatPhoto photo;
-  String invite_link;
+  
   Message pinned_message;
+  String get invite_link => get('invite_link');
+  
   ChatPermissions permissions;
-  int slow_mode_delay;
-  String sticker_set_name;
-  bool can_set_sticker_set;
+  int get slow_mode_delay => get('slow_mode_delay');
+  String get sticker_set_name => get('sticker_set_name');
+  bool get can_set_sticker_set => get('can_set_sticker_set');
 
   final Bot _bot;
 
   Chat(this._bot, Map<String, dynamic> data) : super(data) {
-    id = data['id'];
-    type = data['type'];
-
     if (type == 'private') {
-      user = User(_bot, data);
+      user = Entity.generate<User>(_bot, data);
     }
 
-    title = data['title'];
-    description = data['description'];
     photo = Entity.generate<ChatPhoto>(_bot, data['photo']);
-    invite_link = data['invite_link'];
     pinned_message = Entity.generate<Message>(_bot, data['pinned_message']);
     permissions = Entity.generate<ChatPermissions>(_bot, data['permissions']);
-
-    slow_mode_delay = data['slow_mode_delay'];
-    sticker_set_name = data['sticker_set_name'];
-    can_set_sticker_set = data['can_set_sticker_set'];
   }
 
   Future<void> unpin() async {
@@ -55,17 +47,17 @@ class Chat extends Entity {
 
   Future<void> load() async {
     var chat = await _bot.request<Chat>('getChat', {'chat_id': id});
-    raw = chat.raw;
 
-    title = chat.title;
-    description = chat.description;
-    photo = chat.photo;
-    invite_link = chat.invite_link;
-    pinned_message = chat.pinned_message;
-    permissions = chat.permissions;
-    slow_mode_delay = chat.slow_mode_delay;
-    sticker_set_name = chat.sticker_set_name;
-    can_set_sticker_set = chat.can_set_sticker_set;
+    set('title', chat.title);
+    set('description', chat.description);
+    set('invite_link', chat.invite_link);
+    set('slow_mode_delay', chat.slow_mode_delay);
+    set('sticker_set_name', chat.sticker_set_name);
+    set('can_set_sticker_set', chat.can_set_sticker_set);
+
+    photo = Entity.generate<ChatPhoto>(_bot, chat.get('photo'));
+    pinned_message = Entity.generate<Message>(_bot, chat.get('pinned_message'));
+    permissions = Entity.generate<ChatPermissions>(_bot, chat.get('permissions'));
   }
 
   Future<ChatMember> getChatMember(int user_id) => _bot.request<ChatMember>(
@@ -79,13 +71,13 @@ class Chat extends Entity {
 
   Future<void> setTitle(String title) async {
     await _bot.request('setChatTitle', {'chat_id': id, 'title': title});
-    raw['title'] = title;
+    set('title', title);
   }
 
   Future<void> setDescription(String description) async {
     await _bot.request(
         'setChatDescription', {'chat_id': id, 'description': description});
-    raw['description'] = description;
+    set('description', description);
   }
 
   Future<void> setPermissions(ChatPermissions permissions) => _bot.request(

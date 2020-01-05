@@ -12,6 +12,7 @@ class Message extends Entity {
   Sticker sticker;
   List<User> new_chat_members;
   User left_chat_member;
+  List<PhotoSize> photo;
 
   bool is_forward;
   bool is_special;
@@ -49,6 +50,8 @@ class Message extends Entity {
     new_chat_members = Entity.generateMany<User>(_bot, data['new_chat_members']);;
     left_chat_member = Entity.generate<User>(_bot, data['left_chat_member']);
     
+    photo = Entity.generateMany<PhotoSize>(_bot, data['photo']);
+
     is_forward = forward_from != null || forward_sender_name != null;
 
     is_special = [
