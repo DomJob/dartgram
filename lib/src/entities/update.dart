@@ -19,11 +19,11 @@ class Update extends Entity {
   }
 
   Message get message =>
-      cast<Message>('message') ??
-      cast<Message>('edited_message') ??
-      cast<Message>('channel_post') ??
-      cast<Message>('edited_channel_post');
-  CallbackQuery get callback_query => cast<CallbackQuery>('callback_query');
+      get<Message>('message') ??
+      get<Message>('edited_message') ??
+      get<Message>('channel_post') ??
+      get<Message>('edited_channel_post');
+  CallbackQuery get callback_query => get<CallbackQuery>('callback_query');
 
   Update(Bot bot, Map<String, dynamic> data) : super(bot, data);
 }

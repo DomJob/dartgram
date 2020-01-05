@@ -6,6 +6,7 @@ import 'entities/files/file.dart';
 part 'entities/chat.dart';
 part 'entities/user.dart';
 part 'entities/message.dart';
+part 'entities/message_entity.dart';
 part 'entities/sticker.dart';
 part 'entities/update.dart';
 part 'entities/callback_query.dart';
@@ -16,11 +17,10 @@ part 'entities/keyboard.dart';
 class Entity {
   final Map<String, dynamic> _raw;
 
-  dynamic get(String k) => _raw[k];
   void set(String k, dynamic v) => _raw[k] = v;
 
-  T cast<T>(String k) => generate<T>(_bot, get(k));
-  List<T> castMany<T>(String k) => generateMany<T>(_bot, get(k));
+  T get<T>(String k) => generate<T>(_bot, _raw[k]);
+  List<T> getMany<T>(String k) => generateMany<T>(_bot, _raw[k]);
 
   final Bot _bot;
 
@@ -38,6 +38,7 @@ class Entity {
       Chat: (b, r) => Chat(b, r),
       User: (b, r) => User(b, r),
       Message: (b, r) => Message(b, r),
+      MessageEntity: (b, r) => MessageEntity(b, r),
       Update: (b, r) => Update(b, r),
       Sticker: (b, r) => Sticker(b, r),
       CallbackQuery: (b, r) => CallbackQuery(b, r),

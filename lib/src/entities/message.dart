@@ -2,24 +2,47 @@ part of '../entity.dart';
 
 class Message extends Entity {
   int get id => get('message_id');
-  int get date => get('date');
-  String get text => get('text');
-  String get forward_sender_name => get('forward_sender_name');
-
-  Message get reply_to_message => cast<Message>('reply_to_message');
-  Chat get chat => cast<Chat>('chat');
-
   User get from {
-    var u = cast<User>('from');
+    var u = get<User>('from');
     if (u != null) u._chat = chat;
     return u;
   }
 
-  User get forward_from => cast<User>('forward_from');
-  Sticker get sticker => cast<Sticker>('sticker');
-  User get left_chat_member => cast<User>('left_chat_member');
-  List<User> get new_chat_members => castMany<User>('new_chat_members');
-  List<PhotoSize> get photo => castMany<PhotoSize>('photo');
+  int get date => get('date');
+  Chat get chat => get<Chat>('chat');
+
+  User get forward_from => get<User>('forward_from');
+  Chat get forward_from_chat => get<Chat>('forward_from_chat');
+  String get forward_sigature => get('forward_signature');
+  String get forward_sender_name => get('forward_sender_name');
+  int get foward_date => get('forward_date');
+
+  Message get reply_to_message => get<Message>('reply_to_message');
+  int get edit_date => get('edit_date');
+
+  String get media_group_id => get('media_group_id');
+  String get author_signature => get('author_signature');
+
+  String get text => get('text');
+
+  List<MessageEntity> get entities => getMany<MessageEntity>('entities');
+  List<MessageEntity> get caption_entities => getMany<MessageEntity>('caption_entities');
+
+  Audio get audio => get<Audio>('audio');
+  Document get document => get<Document>('document');
+  Animation get animation => get<Animation>('animation');
+  List<PhotoSize> get photo => getMany<PhotoSize>('photo');
+  Sticker get sticker => get<Sticker>('sticker');
+  Video get video => get<Video>('video');
+  Voice get voice => get<Voice>('voice');
+  VideoNote get video_note => get<VideoNote>('video_note');
+  String get caption => get('caption');
+  // TODO: Contact, Location, Venue, Poll
+
+  List<User> get new_chat_members => getMany<User>('new_chat_members');
+  User get left_chat_member => get<User>('left_chat_member');
+
+  String get new_chat_title => get('new_chat_title');
 
   bool get is_forward => forward_from != null || forward_sender_name != null;
 
@@ -29,7 +52,10 @@ class Message extends Entity {
         'new_chat_title',
         'new_chat_photo',
         'delete_chat_photo',
-        'pinned_message'
+        'pinned_message',
+        'supergroup_chat_created',
+        'migrate_to_chat_id',
+        'migrate_from_chat_id'
       ].any((String k) => get(k) != null);
 
   String get command => args != null ? args[0] : null;
@@ -58,9 +84,8 @@ class Message extends Entity {
       'disable_notification': disable_notification
     };
 
-    print(data);
-
     if (reply_markup != null) data['reply_markup'] = reply_markup.serialized;
+    
     return _bot.request<Message>('sendMessage', data);
   }
 

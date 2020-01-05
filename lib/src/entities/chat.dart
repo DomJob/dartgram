@@ -4,14 +4,14 @@ class Chat extends Entity {
   int get id => get('id');
   String get type => get('type');
   String get title => get('title');
-  User get user => type == 'private' ? cast<User>('user') : null;
+  User get user => type == 'private' ? get<User>('user') : null;
   
-  ChatPhoto get photo => cast<ChatPhoto>('photo');
+  ChatPhoto get photo => get<ChatPhoto>('photo');
   String get description => get('description');
   String get invite_link => get('invite_link');
-  Message get pinned_message => cast<Message>('pinned_message');
+  Message get pinned_message => get<Message>('pinned_message');
   
-  ChatPermissions get permissions => cast<ChatPermissions>('permissions');
+  ChatPermissions get permissions => get<ChatPermissions>('permissions');
   int get slow_mode_delay => get('slow_mode_delay');
   String get sticker_set_name => get('sticker_set_name');
   bool get can_set_sticker_set => get('can_set_sticker_set');
