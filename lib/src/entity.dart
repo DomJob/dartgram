@@ -19,7 +19,12 @@ class Entity {
   dynamic get(String k) => _raw[k];
   void set(String k, dynamic v) => _raw[k] = v;
 
-  Entity(this._raw);
+  T cast<T>(String k) => generate<T>(_bot, get(k));
+  List<T> castMany<T>(String k) => generateMany<T>(_bot, get(k));
+
+  final Bot _bot;
+
+  Entity(this._bot, this._raw);
 
   @override
   String toString() {
@@ -34,9 +39,9 @@ class Entity {
       User: (b, r) => User(b, r),
       Message: (b, r) => Message(b, r),
       Update: (b, r) => Update(b, r),
-      Sticker: (b, r) => Sticker(r),
+      Sticker: (b, r) => Sticker(b, r),
       CallbackQuery: (b, r) => CallbackQuery(b, r),
-      ChatPermissions: (b, r) => ChatPermissions._load(r),
+      ChatPermissions: (b, r) => ChatPermissions._load(b, r),
       ChatMember: (b, r) => ChatMember(b, r),
       
       File: (b, r) => File(b, r),

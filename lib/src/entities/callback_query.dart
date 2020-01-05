@@ -1,18 +1,14 @@
 part of '../entity.dart';
 
 class CallbackQuery extends Entity {
-  String id;
+  String get id => get('id');
   User from;
+  String get data => get('data');
   Message message;
-  String data;
 
-  final Bot _bot;
-
-  CallbackQuery(this._bot, Map<String, dynamic> raw) : super(raw) {
-    id = raw['id'];
+  CallbackQuery(Bot _bot, Map<String, dynamic> raw) : super(_bot, raw) {
     from = Entity.generate<User>(_bot, raw['from']);
     message = Entity.generate<Message>(_bot, raw['message']);
-    data = raw['data'];
   }
 
   Future<void> answer(

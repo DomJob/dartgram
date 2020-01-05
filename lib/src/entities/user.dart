@@ -9,9 +9,7 @@ class User extends Entity {
 
   Chat _chat;
 
-  final Bot _bot;
-
-  User(this._bot, Map<String, dynamic> data) : super(data) {
+  User(Bot bot, Map<String, dynamic> data) : super(bot, data) {
     id = data['id'];
     is_bot = data['is_bot'];
     first_name = data['first_name'];

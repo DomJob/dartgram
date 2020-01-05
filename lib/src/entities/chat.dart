@@ -3,31 +3,20 @@ part of '../entity.dart';
 class Chat extends Entity {
   int get id => get('id');
   String get type => get('type');
-  User user;
-  
   String get title => get('title');
+  User get user => type == 'private' ? cast<User>('user') : null;
+  
+  ChatPhoto get photo => cast<ChatPhoto>('photo');
   String get description => get('description');
-  ChatPhoto photo;
-  
-  Message pinned_message;
   String get invite_link => get('invite_link');
+  Message get pinned_message => cast<Message>('pinned_message');
   
-  ChatPermissions permissions;
+  ChatPermissions get permissions => cast<ChatPermissions>('permissions');
   int get slow_mode_delay => get('slow_mode_delay');
   String get sticker_set_name => get('sticker_set_name');
   bool get can_set_sticker_set => get('can_set_sticker_set');
 
-  final Bot _bot;
-
-  Chat(this._bot, Map<String, dynamic> data) : super(data) {
-    if (type == 'private') {
-      user = Entity.generate<User>(_bot, data);
-    }
-
-    photo = Entity.generate<ChatPhoto>(_bot, data['photo']);
-    pinned_message = Entity.generate<Message>(_bot, data['pinned_message']);
-    permissions = Entity.generate<ChatPermissions>(_bot, data['permissions']);
-  }
+  Chat(Bot bot, Map<String, dynamic> data) : super(bot, data);
 
   Future<void> unpin() async {
     await _bot.request('unpinChatMessage', {'chat_id': id});
@@ -55,9 +44,9 @@ class Chat extends Entity {
     set('sticker_set_name', chat.sticker_set_name);
     set('can_set_sticker_set', chat.can_set_sticker_set);
 
-    photo = Entity.generate<ChatPhoto>(_bot, chat.get('photo'));
-    pinned_message = Entity.generate<Message>(_bot, chat.get('pinned_message'));
-    permissions = Entity.generate<ChatPermissions>(_bot, chat.get('permissions'));
+    set('photo', chat.get('photo'));
+    set('pinned_message', chat.get('pinned_message'));
+    set('permissions', chat.get('permissions'));
   }
 
   Future<ChatMember> getChatMember(int user_id) => _bot.request<ChatMember>(

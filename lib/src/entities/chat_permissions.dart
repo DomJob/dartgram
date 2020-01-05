@@ -10,7 +10,7 @@ class ChatPermissions extends Entity {
   bool get can_invite_users => get('can_invite_users') ?? false;
   bool get can_pin_messages => get('can_pin_messages') ?? false;
 
-  ChatPermissions._load(Map<String, dynamic> data) : super(data);
+  ChatPermissions._load(Bot bot, Map<String, dynamic> data) : super(bot, data);
 
   ChatPermissions(
       {bool can_send_messages = false,
@@ -21,7 +21,7 @@ class ChatPermissions extends Entity {
       bool can_change_info = false,
       bool can_invite_users = false,
       bool can_pin_messages = false})
-      : super({}) {
+      : super(null, {}) {
     set('can_send_messages', can_send_messages);
     set('can_send_media_messages', can_send_media_messages);
     set('can_send_polls', can_send_polls);
