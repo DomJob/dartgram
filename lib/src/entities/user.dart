@@ -72,11 +72,12 @@ class User extends Entity {
     });
   }
 
-  Future<void> setCustomTitle(String custom_title) async {
-    await _bot.request('setChatAdministratorCustomTitle', {
-      'chat_id': _chat.id,
-      'user_id': id,
-      'custom_title': custom_title
-    });
-  }
+  Future<void> setCustomTitle(String custom_title) => _bot.request(
+      'setChatAdministratorCustomTitle',
+      {'chat_id': _chat.id, 'user_id': id, 'custom_title': custom_title});
+
+  Future<UserProfilePhotos> getProfilePhotos(
+          {int offset = 0, int limit = 100}) =>
+      _bot.request<UserProfilePhotos>('getUserProfilePhotos',
+          {'user_id': id, 'offset': offset, 'limit': limit});
 }

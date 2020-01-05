@@ -81,4 +81,20 @@ class Chat extends Entity {
 
   Future<String> getInviteLink() =>
       _bot.request<String>('exportChatInviteLink', {'chat_id': id});
+
+  Future<Message> sendMessage(String text,
+      {String parse_mode,
+      bool disable_notification = false,
+      Keyboard reply_markup}) {
+    var data = {
+      'chat_id': id,
+      'text': text,
+      'parse_mode': parse_mode ?? _bot.parseMode,
+      'disable_notification': disable_notification
+    };
+
+    if (reply_markup != null) data['reply_markup'] = reply_markup.serialized;
+    
+    return _bot.request<Message>('sendMessage', data);
+  }
 }

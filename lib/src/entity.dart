@@ -5,6 +5,7 @@ import 'entities/files/file.dart';
 
 part 'entities/chat.dart';
 part 'entities/user.dart';
+part 'entities/user_profile_photos.dart';
 part 'entities/message.dart';
 part 'entities/message_entity.dart';
 part 'entities/sticker.dart';
@@ -53,7 +54,9 @@ class Entity {
       PhotoSize: (b, r) => PhotoSize(b, r),
       VideoNote: (b, r) => VideoNote(b, r),
       Video: (b, r) => Video(b, r),
-      Voice: (b, r) => Voice(b, r)
+      Voice: (b, r) => Voice(b, r),
+
+      UserProfilePhotos: (b, r) => UserProfilePhotos(b, r)
     };
 
     if(data == null) return null;
