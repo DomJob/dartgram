@@ -62,7 +62,7 @@ class Message extends Entity {
 
   List<String> get args {
     if (text.isEmpty) return null;
-    if (text[0] != '/' && text[0] != '!') return null;
+    if (!_bot.commandCharacters.contains(text[0])) return null;
 
     var args = text.split(' ');
     args[0] = args[0].replaceFirst(args[0][0], '');
