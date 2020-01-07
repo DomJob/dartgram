@@ -56,3 +56,28 @@ class _CallbackRuleBuilder {
     _bot._rules.add(rule);
   }
 }
+
+class _RepeatedAction {
+  final Duration _duration;
+  final Future Function() _action;
+  bool active = true;
+
+  _RepeatedAction(this._duration, this._action) {
+    start();
+  }
+
+  void stop() => active = false;
+
+  void start() {
+    active = true;
+    unawaited(_loop());
+  }
+
+  Future<void> _loop() async {
+    while (active) {
+      await Future.delayed(_duration, () async {
+        if (active) await _action();
+      });
+    }
+  }
+}

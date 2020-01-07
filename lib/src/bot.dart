@@ -1,70 +1,49 @@
 import 'dart:convert';
-import 'dart:io';
 
+import 'http_handler.dart';
 import 'entity.dart';
 
 part 'rule.dart';
 
 class Bot {
   final String _token;
-  HttpClient _client;
-  int _lastUpdate = -1;
+  HttpHandler _handler;
 
+  int _lastUpdate = -1;
   final List<_Rule> _rules = [];
   bool _active = false;
 
   String parseMode = 'HTML';
+  final List<String> commandCharacters = ['/', '!'];
 
-  Bot(this._token);
+  Bot(this._token, [this._handler]) {
+    _handler ??= HttpHandler();
+  }
 
-  Future<dynamic> _request(String method, [Map<String, dynamic> params]) async {
-    if (!_active) {
-      _client = HttpClient();
-    }
+  Future<dynamic> _request(String method,
+      [Map<String, dynamic> params, Map<String, String> files]) async {
+    var result = await _handler.post(
+        'https://api.telegram.org/bot${_token}/${method}', params, files);
 
-    var url = Uri.parse('https://api.telegram.org/bot${_token}/${method}');
-
-    var request = await _client.postUrl(url);
-    request.headers.add('content-type', 'application/json; charset=utf-8');
-
-    request.write(json.encode(params));
-
-    var response = await request.close();
-
-    var stream = response.transform(Utf8Decoder());
-    String stringBody;
-    await for (stringBody in stream) {
-      ;
-    }
-
-    if (!_active) {
-      _client.close();
-    }
-
-    var decoded = json.decode(stringBody);
+    var decoded = json.decode(result);
 
     if (!decoded['ok']) {
-      var encoder = JsonEncoder.withIndent(' ');
-      var prettyData = encoder.convert(params);
-      var prettyResult = encoder.convert(decoded);
-
-      throw ApiException(
-          'Method: ${method}\n\nData: ${prettyData}\n\nResult: ${prettyResult}',
-          decoded);
+      throw ApiException(method, params, files, decoded);
     }
 
     return decoded['result'];
   }
 
   Future<T> request<T>(String method,
-      [Map<String, dynamic> params]) async {
-    var data = await _request(method, params);
+      [Map<String, dynamic> params, Map<String, String> files]) async {
+    var data = await _request(method, params, files);
 
     return Entity.generate<T>(this, data);
   }
 
-  Future<List<T>> requestMany<T>(String method, [Map<String, dynamic> params]) async {
-    var data = await _request(method, params);
+  Future<List<T>> requestMany<T>(String method,
+      [Map<String, dynamic> params, Map<String, String> files]) async {
+    var data = await _request(method, params, files);
 
     return Entity.generateMany<T>(this, data);
   }
@@ -82,10 +61,10 @@ class Bot {
   }
 
   Future<void> start() async {
-    if(_active) return;
+    if (_active) return;
 
     _active = true;
-    _client = HttpClient();
+    _handler.start();
 
     while (_active) {
       var updates =
@@ -101,63 +80,50 @@ class Bot {
   }
 
   void close() {
-    _client.close();
+    _handler.close();
     _active = false;
   }
 
   Future<User> getMe() => request<User>('getMe');
 
-  Future<Chat> getChat(int chat_id) => request<Chat>('getChat', {'chat_id': chat_id});
+  Future<Chat> getChat(int chat_id) =>
+      request<Chat>('getChat', {'chat_id': chat_id});
 
   _RepeatedAction every(int seconds, Future Function() action) =>
       _RepeatedAction(Duration(seconds: seconds), action);
 
-  _MessageRuleBuilder get onMessage => _MessageRuleBuilder(this, UpdateType.message);
+  _MessageRuleBuilder get onMessage =>
+      _MessageRuleBuilder(this, UpdateType.message);
 
-  _MessageRuleBuilder get onEditedMessage => _MessageRuleBuilder(this, UpdateType.edited);
+  _MessageRuleBuilder get onEditedMessage =>
+      _MessageRuleBuilder(this, UpdateType.edited);
 
-  _MessageRuleBuilder get onChannelPost => _MessageRuleBuilder(this, UpdateType.channel);
+  _MessageRuleBuilder get onChannelPost =>
+      _MessageRuleBuilder(this, UpdateType.channel);
 
-  _MessageRuleBuilder get onEditedChannelPost => _MessageRuleBuilder(this, UpdateType.edited_channel);
+  _MessageRuleBuilder get onEditedChannelPost =>
+      _MessageRuleBuilder(this, UpdateType.edited_channel);
 
   _CallbackRuleBuilder get onCallbackQuery => _CallbackRuleBuilder(this);
 
-  _MessageRuleBuilder onCommand(String cmd) => _MessageRuleBuilder(this, UpdateType.message)
-    ..when((m) => m.command?.toLowerCase() == cmd.toLowerCase())
-    ..and((m) => !m.is_forward);
+  _MessageRuleBuilder onCommand(String cmd) =>
+      _MessageRuleBuilder(this, UpdateType.message)
+        ..when((m) => m.command?.toLowerCase() == cmd.toLowerCase())
+        ..and((m) => !m.is_forward);
 }
 
 class ApiException implements Exception {
-  String message;
-  Map<String, dynamic> data;
-  ApiException(this.message, this.data);
+  String method;
+  Map<String, dynamic> params;
+  Map<String, String> files;
+  Map<String, dynamic> result;
+
+  ApiException(this.method, this.params, this.files, this.result);
 
   @override
-  String toString() => message;
-}
-
-class _RepeatedAction {
-  final Duration _duration;
-  final Future Function() _action;
-  bool active = true;
-
-  _RepeatedAction(this._duration, this._action) {
-    start();
-  }
-
-  void stop() => active = false;
-
-  void start() {
-    active = true;
-    unawaited(_loop());
-  }
-
-  Future<void> _loop() async {
-    while (active) {
-      await Future.delayed(_duration, () async {
-        if (active) await _action();
-      });
-    }
+  String toString() {
+    var encoder = JsonEncoder.withIndent(' ');
+    return 'Method: $method\nParams: ${encoder.convert(params)}\nFiles: ${files}\n\nResult:\n${encoder.convert(result)}';
   }
 }
 
