@@ -17,7 +17,7 @@ class HttpHandler {
 
   Future<String> post(String url,
       [Map<String, dynamic> params, Map<String, String> files]) async {
-    var request = await _openRequest(url);
+    var request = await _openRequest('post', url);
 
     files == null
         ? _writeJson(request, params)
@@ -32,12 +32,20 @@ class HttpHandler {
     throw HttpClientError('Something went wrong with the request.');
   }
 
-  Future<HttpClientRequest> _openRequest(String url) {
+  Future<void> download(String url, String path) async {
+    var request = await _openRequest('get', url);
+
+    var response = await request.close();
+
+    await response.pipe(File(path).openWrite());
+  }
+
+  Future<HttpClientRequest> _openRequest(String method, String url) {
     if (_client != null) {
-      return _client.postUrl(Uri.parse(url));
+      return _client.openUrl(method, Uri.parse(url));
     } else {
       var c = HttpClient();
-      var r = c.postUrl(Uri.parse(url));
+      var r = c.openUrl(method, Uri.parse(url));
       c.close();
       return r;
     }

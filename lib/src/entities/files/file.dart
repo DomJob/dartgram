@@ -16,12 +16,12 @@ class File extends Entity {
   String get file_path => get('file_path');
 
   final Bot _bot;
-  
+
   File(this._bot, Map<String, dynamic> data) : super(_bot, data);
 
   Future<void> download(String path) async {
-     await _bot.request<File>('getFile', {'file_id': file_id});
+    var file = await _bot.request<File>('getFile', {'file_id': file_id});
 
-    // TODO: Rest of download logic
+    await _bot.downloadFile(file.file_path, path);
   }
 }

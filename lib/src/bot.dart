@@ -89,6 +89,10 @@ class Bot {
   Future<Chat> getChat(int chat_id) =>
       request<Chat>('getChat', {'chat_id': chat_id});
 
+  Future<void> downloadFile(String file_path, String local_path) async {
+    await _handler.download('https://api.telegram.org/file/bot$_token/$file_path', local_path);
+  }
+
   _RepeatedAction every(int seconds, Future Function() action) =>
       _RepeatedAction(Duration(seconds: seconds), action);
 
