@@ -16,10 +16,15 @@ class HttpHandler {
   }
 
   Future<String> post(String url,
-      [Map<String, dynamic> params, Map<String, String> files]) async {
+      [Map<String, dynamic> data]) async {
+    var params = <String, dynamic>{};
+    var files = <String, File>{};
+
+    if(data != null) data.forEach((k,v) => v is File ? files[k] = v : params[k] = v);
+
     var request = await _openRequest('post', url);
 
-    files == null
+    files.isEmpty
         ? _writeJson(request, params)
         : _writeMultipart(request, params, files);
 
@@ -57,7 +62,7 @@ class HttpHandler {
   }
 
   void _writeMultipart(HttpClientRequest request, Map<String, dynamic> params,
-      Map<String, String> files) {
+      Map<String, File> files) {
     var boundary =
         '----dartgram--' + Random().nextInt(4294967296).toString().padLeft(10);
 
@@ -74,8 +79,8 @@ class HttpHandler {
     for (var e in files.entries) {
       body +=
           '--$boundary\r\nContent-Disposition: form-data; name="${e.key}"; filename="${e.key}"\r\n\r\n';
-      var f = File(e.value);
-      body += String.fromCharCodes(f.readAsBytesSync());
+      var file = e.value;
+      body += String.fromCharCodes(file.readAsBytesSync());
       body += '\r\n';
     }
 

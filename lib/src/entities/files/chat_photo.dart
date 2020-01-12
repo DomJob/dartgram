@@ -7,6 +7,7 @@ class ChatPhoto extends File {
   String get big_file_unique_id => get('big_file_unique_id');
 
   ChatPhoto(Bot bot, Map<String, dynamic> data) : super(bot, data) {
+    _type = FileType.Photo;
     set('file_id', big_file_id);
     set('file_unique_id', big_file_unique_id);
   }

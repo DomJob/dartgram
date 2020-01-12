@@ -69,8 +69,8 @@ class Chat extends Entity {
     set('description', description);
   }
 
-  Future<void> setPhoto(String photoPath) async {
-    await _bot.request('setChatPhoto', {'chat_id': id}, {'photo': photoPath});
+  Future<void> setPhoto(Photo photo) async {
+    await _bot.request('setChatPhoto', {'chat_id': id, 'photo': photo.toFile()});
   }
 
   Future<void> setPermissions(ChatPermissions permissions) => _bot.request(

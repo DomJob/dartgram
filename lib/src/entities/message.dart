@@ -31,7 +31,7 @@ class Message extends Entity {
   Audio get audio => get<Audio>('audio');
   Document get document => get<Document>('document');
   Animation get animation => get<Animation>('animation');
-  List<PhotoSize> get photo => getMany<PhotoSize>('photo');
+  List<Photo> get photo => getMany<Photo>('photo');
   Sticker get sticker => get<Sticker>('sticker');
   Video get video => get<Video>('video');
   Voice get voice => get<Voice>('voice');

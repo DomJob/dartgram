@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'entities/files/file.dart';
 import 'http_handler.dart';
 import 'entity.dart';
 
@@ -20,30 +21,28 @@ class Bot {
     _handler ??= HttpHandler();
   }
 
-  Future<dynamic> _request(String method,
-      [Map<String, dynamic> params, Map<String, String> files]) async {
+  Future<dynamic> _request(String method, [Map<String, dynamic> params]) async {
     var result = await _handler.post(
-        'https://api.telegram.org/bot${_token}/${method}', params, files);
+        'https://api.telegram.org/bot${_token}/${method}', params);
 
     var decoded = json.decode(result);
 
     if (!decoded['ok']) {
-      throw ApiException(method, params, files, decoded);
+      throw ApiException(method, params, decoded);
     }
 
     return decoded['result'];
   }
 
-  Future<T> request<T>(String method,
-      [Map<String, dynamic> params, Map<String, String> files]) async {
-    var data = await _request(method, params, files);
+  Future<T> request<T>(String method, [Map<String, dynamic> params]) async {
+    var data = await _request(method, params);
 
     return Entity.generate<T>(this, data);
   }
 
   Future<List<T>> requestMany<T>(String method,
-      [Map<String, dynamic> params, Map<String, String> files]) async {
-    var data = await _request(method, params, files);
+      [Map<String, dynamic> params]) async {
+    var data = await _request(method, params);
 
     return Entity.generateMany<T>(this, data);
   }
@@ -84,14 +83,36 @@ class Bot {
     _active = false;
   }
 
+  Future<Message> sendMessage(dynamic chat_id, String text,
+      {String parse_mode,
+      bool disable_web_page_preview,
+      bool disable_notification,
+      int reply_to_message_id,
+      Keyboard reply_markup}) {
+    var data = {
+      'parse_mode': parse_mode,
+      'disable_web_page_preview': disable_web_page_preview,
+      'disable_notification': disable_notification,
+      'reply_to_message_id': reply_to_message_id,
+      'reply_markup': reply_markup
+    };
+    if(reply_markup == null) data.remove('reply_markup');
+
+    return request<Message>('sendMessage', data);
+  }
+
   Future<User> getMe() => request<User>('getMe');
 
   Future<Chat> getChat(int chat_id) =>
       request<Chat>('getChat', {'chat_id': chat_id});
 
   Future<void> downloadFile(String file_path, String local_path) async {
-    await _handler.download('https://api.telegram.org/file/bot$_token/$file_path', local_path);
+    await _handler.download(
+        'https://api.telegram.org/file/bot$_token/$file_path', local_path);
   }
+
+  Photo loadPhoto(String id, {bool local = false}) =>
+      File.load<Photo>(this, id, local);
 
   _RepeatedAction every(int seconds, Future Function() action) =>
       _RepeatedAction(Duration(seconds: seconds), action);
@@ -119,15 +140,14 @@ class Bot {
 class ApiException implements Exception {
   String method;
   Map<String, dynamic> params;
-  Map<String, String> files;
   Map<String, dynamic> result;
 
-  ApiException(this.method, this.params, this.files, this.result);
+  ApiException(this.method, this.params, this.result);
 
   @override
   String toString() {
     var encoder = JsonEncoder.withIndent(' ');
-    return 'Method: $method\nParams: ${encoder.convert(params)}\nFiles: ${files}\n\nResult:\n${encoder.convert(result)}';
+    return 'Method: $method\nParams: ${encoder.convert(params)}\n\nResult:\n${encoder.convert(result)}';
   }
 }
 

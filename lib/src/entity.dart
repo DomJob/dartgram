@@ -51,7 +51,7 @@ class Entity {
       Animation: (b, r) => Animation(b, r),
       Audio: (b, r) => Audio(b, r),
       Document: (b, r) => Document(b, r),
-      PhotoSize: (b, r) => PhotoSize(b, r),
+      Photo: (b, r) => Photo(b, r),
       VideoNote: (b, r) => VideoNote(b, r),
       Video: (b, r) => Video(b, r),
       Voice: (b, r) => Voice(b, r),
