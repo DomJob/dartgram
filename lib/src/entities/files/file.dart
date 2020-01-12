@@ -19,7 +19,7 @@ class File extends Entity {
   String get file_path => get('file_path');
 
   final Map<String, dynamic> _info = {};
-  FileType _type = FileType.Document;
+  FileType _type;
   bool _local;
   final Bot _bot;
 
@@ -75,6 +75,8 @@ class File extends Entity {
     if (reply_markup == null) data.remove('reply_markup');
     data.addAll(_info);
     
+    _type ??= FileType.Document;
+
     data[_type.parameter] = toFile();
 
     return _bot.request<Message>(_type.method, data);

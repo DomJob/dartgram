@@ -96,7 +96,7 @@ class Bot {
       'reply_to_message_id': reply_to_message_id,
       'reply_markup': reply_markup
     };
-    if(reply_markup == null) data.remove('reply_markup');
+    if (reply_markup == null) data.remove('reply_markup');
 
     return request<Message>('sendMessage', data);
   }
@@ -111,8 +111,8 @@ class Bot {
         'https://api.telegram.org/file/bot$_token/$file_path', local_path);
   }
 
-  Photo loadPhoto(String id, {bool local = false}) =>
-      File.load<Photo>(this, id, local);
+  T loadFile<T extends File>(String id, {bool local = false}) =>
+      File.load<T>(this, id, local);
 
   _RepeatedAction every(int seconds, Future Function() action) =>
       _RepeatedAction(Duration(seconds: seconds), action);
